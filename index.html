@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anganwadi Smart Management</title>
+    <script src="https://unpkg.com/face-api.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        .glass {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #FF9933, #ffffff, #138808);
+            min-height: 100vh;
+            background-attachment: fixed;
+        }
+        .indian-pattern {
+            background-color: #FF9933;
+            background-image: repeating-radial-gradient(circle at 0 0, transparent 0, #FF9933 10px),
+                            repeating-linear-gradient(#FFFFFF30, #138808);
+            border-radius: 15px;
+        }
+        .floating {
+            animation: float 3s ease-in-out infinite;
+        }
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container mx-auto px-4 py-8">
+        <header class="text-center mb-10">
+            <div class="glass indian-pattern p-6 mb-6">
+                <h1 class="text-4xl font-bold text-white mb-2 floating">🏡 अंगनवाड़ी स्मार्ट प्रबंधन 🌟</h1>
+                <p class="text-white text-xl">Anganwadi Smart Management System</p>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Face Recognition Module -->
+            <div class="glass rounded-xl p-6 hover:scale-105 transition-transform duration-300">
+                <div class="text-center mb-4">
+                    <i class="bi bi-camera-fill text-4xl text-orange-500"></i>
+                    <h2 class="text-xl font-bold text-orange-600 mt-2">Face Recognition 📸</h2>
+                </div>
+                <div class="space-y-4">
+                    <video id="video" class="w-full rounded-lg hidden"></video>
+                    <canvas id="video-canvas" class="w-full rounded-lg hidden"></canvas>
+                    <div class="flex gap-2">
+                        <button id="startCamera" class="flex-1 bg-orange-500 text-white py-2 px-4 rounded-lg hover:bg-orange-600 transition">
+                            <i class="bi bi-camera-fill mr-2"></i> Start Camera
+                        </button>
+                        <button id="captureImage" class="flex-1 bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 transition hidden">
+                            <i class="bi bi-camera"></i> Capture
+                        </button>
+                    </div>
+                    <select id="userType" class="w-full p-2 rounded-lg border-2 border-orange-300 focus:border-orange-500 focus:outline-none">
+                        <option value="">Select User Type</option>
+                        <option value="worker">Anganwadi Worker 👩‍⚕️</option>
+                        <option value="helper">Helper 🤝</option>
+                        <option value="child">Child 👶</option>
+                    </select>
+                    <div id="recognitionStatus" class="text-center text-green-600 hidden">
+                        Recognition in progress... <div class="loading-spinner"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ration Management Module -->
+            <div class="glass rounded-xl p-6 hover:scale-105 transition-transform duration-300">
+                <div class="text-center mb-4">
+                    <i class="bi bi-basket2-fill text-4xl text-orange-500"></i>
+                    <h2 class="text-xl font-bold text-orange-600 mt-2">Ration Management 🍱</h2>
+                </div>
+                <div class="space-y-4">
+                    <input type="number" id="childrenCount" placeholder="Number of Children Present" class="w-full p-2 rounded-lg border-2 border-orange-300 focus:border-orange-500 focus:outline-none">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="relative">
+                            <input type="number" id="rice" placeholder="Rice (kg)" class="w-full p-2 rounded-lg border-2 border-orange-300 focus:border-orange-500 focus:outline-none">
+                            <span class="absolute right-2 top-2">🍚</span>
+                        </div>
+                        <div class="relative">
+                            <input type="number" id="dal" placeholder="Dal (kg)" class="w-full p-2 rounded-lg border-2 border-orange-300 focus:border-orange-500 focus:outline-none">
+                            <span class="absolute right-2 top-2">🥘</span>
+                        </div>
+                        <div class="relative">
+                            <input type="number" id="milk" placeholder="Milk (L)" class="w-full p-2 rounded-lg border-2 border-orange-300 focus:border-orange-500 focus:outline-none">
+                            <span class="absolute right-2 top-2">🥛</span>
+                        </div>
+                        <div class="relative">
+                            <input type="number" id="eggs" placeholder="Eggs" class="w-full p-2 rounded-lg border-2 border-orange-300 focus:border-orange-500 focus:outline-none">
+                            <span class="absolute right-2 top-2">🥚</span>
+                        </div>
+                    </div>
+                    <button onclick="calculateRation()" class="w-full bg-orange-500 text-white py-2 rounded-lg hover:bg-orange-600 transition">
+                        <i class="bi bi-calculator"></i> Calculate & Distribute
+                    </button>
+                    <div id="rationResult" class="hidden p-4 bg-green-100 rounded-lg text-green-700"></div>
+                </div>
+            </div>
+
+            <!-- Supervisor Module -->
+            <div class="glass rounded-xl p-6 hover:scale-105 transition-transform duration-300">
+                <div class="text-center mb-4">
+                    <i class="bi bi-clipboard2-data-fill text-4xl text-orange-500"></i>
+                    <h2 class="text-xl font-bold text-orange-600 mt-2">Supervisor Portal 📋</h2>
+                </div>
+                <form id="supervisorForm" class="space-y-4">
+                    <input type="text" placeholder="Supervisor ID" class="w-full p-2 rounded-lg border-2 border-orange-300 focus:border-orange-500 focus:outline-none" required>
+                    <textarea placeholder="Inspection Notes" rows="3" class="w-full p-2 rounded-lg border-2 border-orange-300 focus:border-orange-500 focus:outline-none" required></textarea>
+                    <select class="w-full p-2 rounded-lg border-2 border-orange-300 focus:border-orange-500 focus:outline-none" required>
+                        <option value="">Priority Level</option>
+                        <option value="high">🔴 High Priority</option>
+                        <option value="medium">🟡 Medium Priority</option>
+                        <option value="low">🟢 Low Priority</option>
+                    </select>
+                    <div class="flex gap-2">
+                        <button type="submit" class="flex-1 bg-orange-500 text-white py-2 rounded-lg hover:bg-orange-600 transition">
+                            <i class="bi bi-send"></i> Submit Report
+                        </button>
+                        <button type="button" onclick="escalateIssue()" class="flex-1 bg-red-500 text-white py-2 rounded-lg hover:bg-red-600 transition">
+                            <i class="bi bi-exclamation-triangle"></i> Escalate
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Offline Status -->
+        <div class="fixed bottom-4 right-4 glass rounded-full p-4">
+            <div id="onlineStatus" class="flex items-center gap-2">
+                <span class="h-3 w-3 bg-green-500 rounded-full"></span>
+                <span class="text-sm">Online</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Face Recognition Implementation
+        let video = document.getElementById('video');
+        let canvas = document.getElementById('video-canvas');
+        let startButton = document.getElementById('startCamera');
+        let captureButton = document.getElementById('captureImage');
+        let recognitionStatus = document.getElementById('recognitionStatus');
+
+        // Initialize face-api.js
+        Promise.all([
+            faceapi.nets.tinyFaceDetector.loadFromUri('/models'),
+            faceapi.nets.faceLandmark68Net.loadFromUri('/models'),
+            faceapi.nets.faceRecognitionNet.loadFromUri('/models')
+        ]).then(startVideo);
+
+        function startVideo() {
+            startButton.addEventListener('click', async () => {
+                try {
+                    video.classList.remove('hidden');
+                    captureButton.classList.remove('hidden');
+                    startButton.classList.add('hidden');
+                    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                    video.srcObject = stream;
+                    video.play();
+                } catch (err) {
+                    console.error("Error:", err);
+                    alert("Camera access denied. Please check permissions.");
+                }
+            });
+        }
+
+        video.addEventListener('play', () => {
+            const displaySize = { width: video.width, height: video.height }
+            faceapi.matchDimensions(canvas, displaySize)
+        });
+
+        // Offline Storage
+        let offlineStorage = {
+            store: function(data) {
+                let stored = JSON.parse(localStorage.getItem('offlineData') || '[]');
+                stored.push({
+                    timestamp: new Date().toISOString(),
+                    data: data
+                });
+                localStorage.setItem('offlineData', JSON.stringify(stored));
+            },
+            sync: async function() {
+                let stored = JSON.parse(localStorage.getItem('offlineData') || '[]');
+                if (stored.length > 0 && navigator.onLine) {
+                    try {
+                        // Implement your sync logic here
+                        localStorage.removeItem('offlineData');
+                    } catch (error) {
+                        console.error('Sync failed:', error);
+                    }
+                }
+            }
+        };
+
+        // Ration Calculation
+        function calculateRation() {
+            const childrenCount = document.getElementById('childrenCount').value;
+            const rice = document.getElementById('rice').value;
+            const dal = document.getElementById('dal').value;
+            const milk = document.getElementById('milk').value;
+            const eggs = document.getElementById('eggs').value;
+
+            if (!childrenCount || !rice || !dal || !milk || !eggs) {
+                alert('Please fill all fields');
+                return;
+            }
+
+            const result = {
+                ricePerChild: (rice / childrenCount).toFixed(2),
+                dalPerChild: (dal / childrenCount).toFixed(2),
+                milkPerChild: (milk / childrenCount).toFixed(2),
+                eggsPerChild: Math.floor(eggs / childrenCount)
+            };
+
+            const resultDiv = document.getElementById('rationResult');
+            resultDiv.innerHTML = `
+                Per Child Distribution:
+                🍚 Rice: ${result.ricePerChild}kg
+                🥘 Dal: ${result.dalPerChild}kg
+                🥛 Milk: ${result.milkPerChild}L
+                🥚 Eggs: ${result.eggsPerChild}
+            `;
+            resultDiv.classList.remove('hidden');
+
+            // Store offline if needed
+            if (!navigator.onLine) {
+                offlineStorage.store({
+                    type: 'ration',
+                    data: result
+                });
+            }
+        }
+
+        // Online/Offline Status
+        function updateOnlineStatus() {
+            const statusDiv = document.getElementById('onlineStatus');
+            const statusDot = statusDiv.querySelector('span:first-child');
+            const statusText = statusDiv.querySelector('span:last-child');
+
+            if (navigator.onLine) {
+                statusDot.classList.remove('bg-red-500');
+                statusDot.classList.add('bg-green-500');
+                statusText.textContent = 'Online';
+                offlineStorage.sync();
+            } else {
+                statusDot.classList.remove('bg-green-500');
+                statusDot.classList.add('bg-red-500');
+                statusText.textContent = 'Offline';
+            }
+        }
+
+        window.addEventListener('online', updateOnlineStatus);
+        window.addEventListener('offline', updateOnlineStatus);
+        updateOnlineStatus();
+
+        // Supervisor Report Handling
+        document.getElementById('supervisorForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            // Handle form submission
+            alert('Report submitted successfully!');
+            this.reset();
+        });
+
+        function escalateIssue() {
+            const confirmation = confirm('Are you sure you want to escalate this issue to higher authorities?');
+            if (confirmation) {
+                alert('Issue has been escalated to higher authorities.');
+            }
+        }
+    </script>
+<script>document.body.addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefault(); return }, { passive: false })</script>
+	</body>
+</html>
